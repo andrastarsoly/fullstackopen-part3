@@ -1,7 +1,7 @@
 {
-  "name": "fullstackopen-part3",
+  "name": "phonebook-fullstackopen",
   "version": "1.0.0",
-  "description": "fullstackopen-part3",
+  "description": "Phonebook-fullstackopen",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -27,6 +27,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.7",
     "nodemon": "^3.1.0"
   }
 }
