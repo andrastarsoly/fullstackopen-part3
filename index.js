@@ -1,56 +1,11 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
-require('dotenv').config()
-
+const Person = require('./models/person')
 app.use(cors())
 app.use(express.static('dist'))
-
-const mongoose = require('mongoose')
-
-const url = process.env.MONGODB_URL;
-
-mongoose.set('strictQuery',false)
-mongoose.connect(url)
-
-const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-})
-
-const Person = mongoose.model('Person', personSchema)
-
-const person = new Person({
-  name: process.argv[3],
-  number: process.argv[4],
-})
-
-
-
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 app.use(express.json())
 
 morgan.token('req-body', function (req, res){
@@ -68,6 +23,7 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
+
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     const person = persons.find(person => person.id === id)
@@ -78,6 +34,11 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
+app.get('/api/persons/:id', (request, response) => {
+  Person.findById(request.params.id).then(person => {
+    response.json(person)
+  })
+})
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
@@ -94,12 +55,12 @@ app.post('/api/persons/', (request, response) => {
         })
     }
 
+    /*
     if(persons.find(person => person.name === body.name)){
         return response.status(400).json({ 
         error: 'Name must be unique' 
       })
     }
-
 
     const id = Math.floor(Math.random()*33333)
     const person = {
@@ -110,15 +71,24 @@ app.post('/api/persons/', (request, response) => {
 
     persons = persons.concat(person)
     response.json(person);
-})
+    */
 
+    const person = new Person({
+      name: body.name,
+      number: body.number,
+    })
+  
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
+    
+})
 
 app.get('/info', (request, response) => {
     response.send(`Phonebook has info for ${persons.length} people <br/> ${new Date().toString()}`)
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
-  console.log(process.env.MONGODB_URL)
 }) 
