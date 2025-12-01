@@ -1,14 +1,11 @@
 const express = require('express')
 const app = express()
 require('dotenv').config()
-
+const morgan = require('morgan')
+const cors = require('cors')
 const Person = require('./models/person')
 
 app.use(express.static('dist'))
-
-const morgan = require('morgan')
-
-const cors = require('cors')
 app.use(cors())
 app.use(express.json())
 
@@ -83,6 +80,20 @@ app.get('/info', (request, response) => {
     response.send(`Phonebook has info for ${persons} people <br/> ${new Date()}`)
   })
 })
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+
+app.use(errorHandler)
+
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
