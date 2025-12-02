@@ -15,7 +15,11 @@ mongoose.connect(url)
   })
 
   const personSchema = new mongoose.Schema({
-    name: String,
+    name: {
+      type: String,
+      required: true,
+      minlength: 3
+    },
     number: {
       type: String,
       min: [8, 'A phone number must have length of 8 or more'],
